@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 from math import sqrt
 
+ALPHA_SIZE = ord('Z') - ord('A') + 1
+L_A = ord('A')
+L_Z = ord('Z')
+CAPS_BOUND = L_Z + 1
+L_a = ord('a')
+L_z = ord('z')
+LC_BOUND = L_z + 1
+
 # Number: Letter dictionary {"A":1, "B":2, ..., "Z": 26}
-NUM_LETTERS = {chr(n):n - 64 for n in range(65,91)}
+NUM_LETTERS = {chr(n):n - (LETTER_OFFSET - 1) for n in range(L_A,CAPS_BOUND)}
 
 def stripSpaces(message):
     """ Return message string with spaces removed. """
@@ -13,10 +21,10 @@ def rot(message, n):
     encoded = ""
     for letter in message:
         lnum = ord(letter)
-        if lnum in range(97,123 - n) or lnum in range(65,91 - n):
+        if lnum in range(L_a,LC_BOUND - n) or lnum in range(L_A,CAPS_BOUND - n):
             encoded += chr(lnum + n)
-        elif lnum in range(122 - n, 123) or lnum in range(91 - n, 90):
-            encoded += chr(lnum + n - 26)
+        elif lnum in range(L_z - n, LC_BOUND) or lnum in range(CAPS_BOUND - n, L_Z):
+            encoded += chr(lnum + n - ALPHA_SIZE)
         else:
             encoded += letter
     return encoded
@@ -48,7 +56,7 @@ def gridCW(message, rowlen):
 def vigenere(decoded, keyword1, keyword2=""):
     """ Vigenere encryption. """
     keyABC = keyword2
-    for i in range(65,91):
+    for i in range(L_A,CAPS_BOUND):
         c = chr(i)
         if c not in keyABC:
             keyABC += c
@@ -65,7 +73,7 @@ def vigenere(decoded, keyword1, keyword2=""):
 def reverseVigenere(encoded, keyword1, keyword2=""):
     """ Vigenere decryption. """
     keyABC = keyword2
-    for i in range(65,91):
+    for i in range(L_A,CAPS_BOUND):
         c = chr(i)
         if c not in keyABC:
             keyABC += c
@@ -118,11 +126,11 @@ def stipRot(message, trans, increment=1):
     encoded = ""
     for letter in message:
         lnum = ord(letter)
-        if lnum in range(97,123 - trans) or lnum in range(65,91 - trans):
+        if lnum in range(L_a,LC_BOUND - trans) or lnum in range(L_A,CAPS_BOUND - trans):
             encoded += chr(lnum + trans)
-        elif lnum in range(122 - trans, 123) or lnum in range(91 - trans, 90):
-            encoded += chr(lnum + trans - 26)
-        trans = (trans + increment) % 26
+        elif lnum in range(L_z - trans, LC_BOUND) or lnum in range(CAPS_BOUND - trans, L_Z):
+            encoded += chr(lnum + trans - ALPHA_SIZE)
+        trans = (trans + increment) % ALPHA_SIZE
     return encoded1
 
 def euclid(a, b):
@@ -143,9 +151,9 @@ def sequentialWord(word):
         if inc:
             inc = False
             wlist[-i] += 1
-        if wlist[-i] > 90:
+        if wlist[-i] > L_Z:
             inc = True
-            wlist[-i] -= 26
+            wlist[-i] -= ALPHA_SIZE
     rword = "".join([chr(l) for l in wlist])
     if inc:
         rword = "A" + rword
@@ -154,6 +162,6 @@ def sequentialWord(word):
 def createKey(phrase):
     key = ""
     for letter in stripSpaces(phrase.upper()):
-        if letter not in key and ord(letter) in range(65,91):
+        if letter not in key and ord(letter) in range(L_A,CAPS_BOUND):
             key += letter
     return key
